@@ -1,0 +1,41 @@
+public void onExecute() throws Exception {
+
+  BOrd alarmOrd = getAlarmQuery(); 
+  BOrd overrideOrd = getOverrideQuery();     
+  String ordToString1 = alarmOrd.encodeToString();
+  String ordToString2 = overrideOrd.encodeToString();
+  String alarmString = getAlarmCount();
+  String overrideString = getOverrideCount();
+  alarmString = countMetric(ordToString1).toString();
+  setAlarmCount(alarmString);
+  overrideString = countMetric(ordToString2).toString();
+  setOverrideCount(overrideString);
+
+}
+
+public static BIObject countMetric(String ord){
+    BIObject val = null;
+    String query = (ord);
+  BOrd bqlOrd = BOrd.make(query);     
+
+  BITable table = (BITable)bqlOrd.resolve().get();Column[] columns = table.getColumns().list();
+
+  try(TableCursor<BIObject> cursor = table.cursor()){  
+
+    int row = 0;  while (cursor.next())
+      { 
+ 
+       for (Column col : columns) 
+       {
+
+        val = (cursor.cell(col));
+      //return val;
+        }
+  
+  ++row;
+
+       }
+   } 
+   if(val != null) return val; else return null;
+       // return val; 
+ }
