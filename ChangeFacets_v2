@@ -1,0 +1,36 @@
+public void onExecute() throws Exception {
+  
+  BOrd ord = getScope();     
+  String ordToString = ord.encodeToString();
+  
+//This finds all numeric points with the unit %
+  changeFacets("'*$5c$25$25*'", ordToString, 0);
+//This finds all numeric points with the unit °F 
+  changeFacets("'*$b0F*'", ordToString, 1);
+//This finds all numeric points with the unit in/wc
+  changeFacets("'in$2fwc'", ordToString, 2);
+//This finds all numeric points with the unit psi
+  changeFacets("'psi'", ordToString, 1);
+
+          
+}
+
+  public void changeFacets(String units, String scope, int precision) {
+
+    BNumericPoint point = null;     
+    BFacets facets = null;     
+    BFacets updateFacets = null;  
+    BFacets newPrecision =  BFacets.make("precision", precision);
+    String query = scope.concat("|bql:select * from control:NumericPoint where facets like ").concat(units);
+      
+      BOrd qord = BOrd.make(query);     
+      BITable<BNumericPoint> result = (BITable<BNumericPoint>)qord.resolve().get();     
+      TableCursor<BNumericPoint> c = result.cursor();     
+        while(c.next()){       
+          point = c.get();       
+          facets = point.getFacets();   
+          updateFacets = BFacets.make(facets, newPrecision);       
+          point.setFacets(updateFacets); 
+          System.out.println(point.toPathString() + " changed precision to" + newPrecision);
+          }
+       }
